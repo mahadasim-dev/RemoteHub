@@ -3,7 +3,7 @@
 A small portfolio dashboard built with React, TypeScript, and Tailwind CSS.
 
 ## Features
-**Task Board:** add, complete, and delete tasks
+**Task Board:** add, complete, and save tasks according to their priorities
 **GitHub Profile Scout:** look up any GitHub user via the GitHub API
 **Currency Ledger:** convert between currencies using live exchange rates
 **Dictionary:** look up definitions and examples for English words
