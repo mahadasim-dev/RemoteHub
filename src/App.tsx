@@ -1,93 +1,98 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { WorkspaceTab } from './components/workspace/WorkspaceTab';
+import { GithubTab } from './components/github/GithubTab';
+import { CurrencyTab } from './components/currency/CurrencyTab';
+import { DictionaryTab } from './components/dictionary/DictionaryTab';
 
-interface Task {
-    id: string;
-    title: string;
-    completed: boolean;
-}
+type ActiveTab = 'workspace' | 'github' | 'currency' | 'dictionary';
 
 export default function App() {
-    const [inputValue, setInputValue] = useState<string>('');
-    const [task, setTask] = useState<Task[]>([]);
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [error, setError] = useState<string>('');
-
-    function addTask() {
-        if (inputValue.trim() === '') {
-            setError('Please Write a Task');
-            return;
+    const [activeTab, setActiveTab] = useState<ActiveTab>('workspace');
+    const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+        const savedTheme = localStorage.getItem('page_theme');
+        return (savedTheme as 'light' | 'dark') || 'dark';
+    });
+    
+    useEffect(() => {
+        if (theme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
         }
-        setError('');
-        const newTask: Task = {
-            id: Date.now().toString(),
-            title: inputValue.trim(),
-            completed: false
-        };
-        setTask([...task, newTask]);
-        setInputValue('');
-        setIsModalOpen(false);
-    }
-
-    const deleteTask = (id: string): void => {
-        const updatedTask = task.filter(t => t.id !== id);
-        setTask(updatedTask);
-        if (updatedTask.length === 0) {
-            setIsModalOpen(false);
-        }
-    };
-
-    const toggleTask = (id: string): void => {
-        const updatedTask = task.map(t => {
-            if (t.id === id) {
-                return {...t, completed: !t.completed};
-            }
-            return t;
-        });
-        setTask(updatedTask);
+        localStorage.setItem('page_theme', theme);
+    }, [theme]);
+    const toggleTheme = () => {
+        setTheme(theme => theme === 'light' ? 'dark' : 'light');
     };
 
     return (
-        <div className='font-sans bg-main text-text-main m-0 p-0 w-screen h-screen overflow-x-hidden relative'>
-            <h1 className='text-2xl text-text-main font-bold ml-3 pt-4'>To-Do List</h1>
-            {task.length === 0 && (
-                <p className='flex flex-col justify-center p-2 mb-3 text-sm text-gray-900 italic text-center'>No tasks added. Please add a task</p>
-            )}
-            <div className='my-10 mx-auto p-4 md:max-w-md'>
-                <ul className='flex flex-col gap-2'>
-                    {task.map(t => (
-                        <li key={t.id} className='flex items-center justify-between bg-main text-text-main p-3 rounded-xl border border-gray-500 shadow-main'>
-                            <div className='flex items-center gap-3 w-full justify-between'>
-                                <div className='flex items-center gap-3'>
-                                    <input type='checkbox' checked={t.completed} onChange={() => toggleTask(t.id)} className='w-4 h-4 rounded cursor-pointer accent-text-main'/>
-                                    <p className={t.completed ? 'line-through text-gray-500' : ''}>{t.title}</p>
-                                </div>
-                                <button onClick={() => deleteTask(t.id)} className='text-sm px-2 py-1 rounded-full border-red-700 border-2 bg-red-400 hover:text-red-500 hover:scale-[1.03] active:scale-95 transition-all duration-200 ease-in-out cursor-pointer'>X</button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-            <button onClick={() => setIsModalOpen(true)} className='fixed bottom-6 right-6 w-14 h-14 bg-button border-none rounded-3xl shadow-button hover:scale-[1.05] hover:shadow-button-hover transition-all duration-300 ease-in-out cursor-pointer flex items-center justify-center'>
-                <p className='text-3xl font-black text-white leading-none pb-2'>+</p>
-            </button>
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black/40 backdrop-blur-md flex items-center justify-center p-4 z-50">
-                    <div className='flex flex-col gap-6 w-11/12 md:w-3/4 max-w-2xl h-auto p-8 relative overflow-hidden rounded-[24px] bg-white/10 backdrop-blur-xl border border-white/20 shadow-modal transition-all duration-300'>
-                        <div className='absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-transparent pointer-events-none' />
-                        <button onClick={() => setIsModalOpen(false)} className='absolute top-4 right-4 z-50 text-white/60 hover:text-white hover:scale-110 active:scale-95 transition-all duration-200 text-sm font-bold cursor-pointer'>X</button>
-                        <div className='relative z-10'>
-                            <h2 className='text-xl font-semibold text-white mb-4'>Add New Task</h2>
-                            <div className='flex flex-row gap-2'>
-                                <input type='text' value={inputValue} onChange={(e) => setInputValue(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addTask()} placeholder='Type your task...' className='bg-black/20 text-white placeholder-white/40 rounded-lg p-3 flex-1 border border-white/10 focus:outline-none focus:border-white/30'/>
-                                <button onClick={addTask} className='bg-button px-4 py-2 text-white rounded-xl border-none transition-all duration-200 hover:scale-[1.03] active:scale-95 font-medium text-base cursor-pointer'>Add</button>   
-                            </div>
+        <div className="flex h-screen w-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-50 overflow-hidden font-sans transition-colors duration-200">
+            <aside className="w-64 bg-gray-50 dark:bg-zinc-900 border-r border-zinc-200 dark:border-zinc-800 flex flex-col justify-between p-5 z-20 transition-colors duration-200">
+                <div className="flex flex-col gap-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h2 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 flex items-center gap-2">
+                                <span className="font-black">●</span> RemoteHub
+                            </h2>
+                            <p className="text-xs text-zinc-400 mt-0.5">Analyze my Portfolio</p>
                         </div>
-                        {error && (
-                            <p className='flex flex-col justify-center p-2 mb-3 text-sm text-red-800 bg-red-400 border-none rounded-lg w-full'>{error}</p>
-                        )}
+                        <button onClick={toggleTheme} className="p-2 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:text-brand-teal dark:hover:text-orange-400 hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer shadow-sm border border-zinc-200/40 dark:border-zinc-700/50 flex items-center justify-center w-9 h-9" title={theme === 'dark' ? "Switch to Light Mode" : "Switch to Dark Mode"}>
+                            {theme === 'dark' ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-orange-400 animate-fade-in">
+                                    <path fillRule="evenodd" d="M9.528 1.718a.75.75 0 0 1 .162.819A8.97 8.97 0 0 0 9 6a9 9 0 0 0 9 9 8.97 8.97 0 0 0 3.463-.69.75.75 0 0 1 .981.98 10.503 10.503 0 0 1-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-4.368 2.667-8.112 6.46-9.694a.75.75 0 0 1 .818.162Z" clipRule="evenodd" />
+                                </svg>
+                            ) : (
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5 text-zinc-700 animate-fade-in">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+                                </svg>
+                            )}
+                        </button>
+                    </div>
+                    <nav className="flex flex-col gap-1">
+                        <button onClick={() => setActiveTab('workspace')} className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                                activeTab === 'workspace' 
+                                    ? 'bg-zinc-100 dark:bg-orange-950/30 text-brand-teal dark:text-orange-400 font-semibold' 
+                                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+                            }`}>
+                            Task List Workspace
+                        </button>
+                        <button onClick={() => setActiveTab('github')} className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                                activeTab === 'github' 
+                                    ? 'bg-zinc-100 dark:bg-orange-950/30 text-brand-teal dark:text-orange-400 font-semibold' 
+                                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+                            }`}>
+                            Github Profile Scout
+                        </button>
+                        <button onClick={() => setActiveTab('currency')}className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                                activeTab === 'currency' 
+                                    ? 'bg-zinc-100 dark:bg-orange-950/30 text-brand-teal dark:text-orange-400 font-semibold' 
+                                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+                            }`}>
+                            Currency Ledger
+                        </button>
+                        <button onClick={() => setActiveTab('dictionary')}className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer ${
+                                activeTab === 'dictionary' 
+                                    ? 'bg-zinc-100 dark:bg-orange-950/30 text-brand-teal dark:text-orange-400 font-semibold' 
+                                    : 'text-zinc-500 dark:text-zinc-400 hover:bg-zinc-50 dark:hover:bg-zinc-800/50'
+                            }`}>
+                            Dictionary
+                        </button>
+                    </nav>
+                </div>
+                <div className="border-t border-zinc-100 dark:border-zinc-800 pt-4 flex items-center gap-3 transition-colors duration-200">
+                    <div className="w-8 h-8 rounded-full bg-brand-teal dark:bg-orange-600 flex items-center justify-center font-bold text-white text-xs shadow-sm">MA</div>
+                    <div className="flex flex-col min-w-0">
+                        <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 truncate">Junior Developer</p>
+                        <p className="text-[10px] text-zinc-400 font-medium tracking-wide">Active</p>
                     </div>
                 </div>
-            )}
+            </aside>
+            <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-zinc-950 p-2 relative transition-colors duration-200">
+                {activeTab === 'workspace' && <WorkspaceTab/>}
+                {activeTab === 'github' && <GithubTab/>}
+                {activeTab === 'currency' && <CurrencyTab/>}
+                {activeTab === 'dictionary' && <DictionaryTab/>}
+            </main>
         </div>
-    );
+);
 }
