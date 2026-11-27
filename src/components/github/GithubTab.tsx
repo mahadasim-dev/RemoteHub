@@ -63,7 +63,7 @@ export const GithubTab: React.FC = () => {
       </div>
 
       <div className="flex gap-3 w-full mb-6 flex-wrap md:flex-nowrap">
-        <input type="text" placeholder="Enter GitHub username..." value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && findProfile()} className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 text-sm placeholder-zinc-400 rounded-xl p-3.5 flex-1 border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 shadow-sm transition-all"/>
+        <input type="text" placeholder="Enter GitHub username (e.g., octocat)" value={query} onChange={(e) => setQuery(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && findProfile()} className="bg-white dark:bg-zinc-900 text-zinc-900 dark:text-zinc-50 text-sm placeholder-zinc-400 rounded-xl p-3.5 flex-1 border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 shadow-sm transition-all"/>
         <button onClick={findProfile} disabled={loading} className="bg-brand-btn hover:bg-brand-btn-hover text-white font-medium px-6 py-3.5 rounded-xl text-sm shadow-sm transition-all active:scale-95 cursor-pointer whitespace-nowrap">Search Profile</button>
       </div>
       {errorMessage && (
